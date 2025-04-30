@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>נרשמת בהצלחה!</title>
+
+    <!-- רספונסיביות לנייד -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+
+    <!-- גופן רך ונעים -->
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #e0f7fa, #80deea);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Varela Round', sans-serif;
+        }
+
+        .card {
+            max-width: 100%;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            text-align: center;
+            padding: 30px 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            background: white;
+            animation: pop 0.8s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .star {
+            color: gold;
+            font-size: 2rem;
+            animation: twinkle 1.5s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            from { transform: scale(1); opacity: 0.7; }
+            to { transform: scale(1.3); opacity: 1; }
+        }
+
+        .btn-home {
+            margin-top: 20px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border: none;
+            transition: 0.4s;
+        }
+
+        .btn-home:hover {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+        }
+    </style>
+</head>
+<body>
+
+<div class="card mx-auto">
+    <div class="star mb-3">🌟</div>
+    <h1 class="text-success">נרשמת בהצלחה!</h1>
+    <p class="lead">שלום <strong>{{ registration.שם_פרטי }} {{ registration.שם_משפחה }}</strong>,</p>
+    <p class="mb-4">שלחנו לך מייל אישור. נתראה בסיור ב־<strong>{{ registration.סיור.תאריך }}</strong>!</p>
+    <a href="/" class="btn btn-home">חזרה לדף הבית 🏠</a>
+</div>
+
+</body>
+</html>

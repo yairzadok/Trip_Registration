@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from .models import Tour, Registration
 from .forms import RegistrationForm
 from django.core.mail import EmailMultiAlternatives
-from django.core.mail.message import make_msgid
+from django.core.mail.message import make_msgid, EmailMessage
 from email.mime.image import MIMEImage
 import qrcode
 import openpyxl
@@ -30,8 +30,9 @@ def update_presence(request):
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 def home(request):
-    tour = Tour.objects.first()
-    return render(request, 'tours/home.html', {'tour': tour})
+    tours = Tour.objects.all().order_by('-id')  # הצגת הסיורים החדשים תחילה
+    return render(request, 'tours/home.html', {'tours': tours})
+
 
 
 def export_registrations_excel(request):
@@ -60,17 +61,13 @@ def export_registrations_excel(request):
 
     workbook.save(response)
     return response
-
-
 def registration_list(request):
-    tours = Tour.objects.prefetch_related(
-        Prefetch('registrations', queryset=Registration.objects.all())
-    )
+    tours = Tour.objects.prefetch_related('registrations').all()
     return render(request, 'tours/registration_list.html', {'tours': tours})
 
 
-def register(request):
-    tour = Tour.objects.first()
+def register(request, tour_id):
+    tour = get_object_or_404(Tour, id=tour_id)
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -141,7 +138,7 @@ def register(request):
 
             msg.send()
 
-            return redirect('success')
+            return render(request, 'tours/success.html', {'registration': registration})
     else:
         form = RegistrationForm()
 
@@ -228,8 +225,13 @@ def send_reminder_emails(request):
 
 
 def participants_list(request):
-    registrations = Registration.objects.all()
+    tour_id = request.GET.get('tour_id')
+    if tour_id:
+        registrations = Registration.objects.filter(סיור_id=tour_id)
+    else:
+        registrations = Registration.objects.all()  # גיבוי למקרה שאין פילטר
     return render(request, 'tours/participants_list.html', {'registrations': registrations})
+
 
 @csrf_exempt
 def send_attendance_report(request):
@@ -264,3 +266,20 @@ def send_attendance_report(request):
         return JsonResponse({'success': True})
 
     return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+from django.shortcuts import render, redirect
+from .forms import TourGuideForm
+
+def register_tour_guide(request):
+    if request.method == 'POST':
+        form = TourGuideForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('guide_thank_you')  # ודא שהנתיב הזה קיים
+    else:
+        form = TourGuideForm()
+    return render(request, 'guides/register.html', {'form': form})
+
+
+def thank_you(request):
+    return render(request, 'guides/thank_you.html')

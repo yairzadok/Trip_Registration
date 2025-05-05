@@ -65,10 +65,17 @@
     </div>
 
     {% for tour in tours %}
+         <a href="{% url 'participants_list' %}?tour_id={{ tour.id }}" class="btn btn-outline-secondary mt-2">
+    📋 קישור לרשימת המשתתפים של {{ tour.שם_מדריך }}
+</a>
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-primary text-white">
-                {{ tour.כותרת_ראשית }} | {{ tour.תאריך }} ({{ tour.registrations.count }} נרשמים)
-            </div>
+
+    <strong>{{ tour.כותרת_ראשית }}</strong> |
+    {{ tour.תאריך }} |
+    מדריך: {{ tour.שם_מדריך }} |
+    {{ tour.registrations.count }} נרשמים
+</div>
             <div class="card-body p-0">
                 {% if tour.registrations.all %}
                     <div class="table-responsive">

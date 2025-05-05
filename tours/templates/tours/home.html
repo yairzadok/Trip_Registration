@@ -3,17 +3,14 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>{{ tour.כותרת_ראשית }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- חשוב לרספונסיביות -->
+    <title>סיורים</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(to bottom, #f8f9fa, #e0eafc);
             min-height: 100vh;
             font-family: 'Varela Round', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
         .card {
@@ -22,6 +19,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 500px;
+            margin: 20px auto;
             transition: transform 0.3s;
         }
         .card:hover {
@@ -52,12 +50,24 @@
             justify-content: center;
             gap: 10px;
         }
-        .location-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: bold;
+
+        /* רקעים מתחלפים לפי אינדקס */
+        .tour-card-bg-0 {
+            background: linear-gradient(135deg, #fffcfc 0%, #9fe6fc 100%);
         }
+        .tour-card-bg-1 {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .tour-card-bg-2 {
+            background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);
+        }
+        .tour-card-bg-3 {
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+        }
+        .tour-card-bg-4 {
+            background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%);
+        }
+
         @media (max-width: 576px) {
             .btn-register {
                 font-size: 1rem;
@@ -71,8 +81,9 @@
 </head>
 <body>
 <div class="container">
-    <div class="card">
-        {% if tour %}
+    {% if tours %}
+        {% for tour in tours %}
+        <div class="card tour-card-bg-{{ forloop.counter0|add:0|divisibleby:5|yesno:'0,1,2,3,4'|cut:',' }}">
             <img src="{{ tour.תמונה.url }}" alt="תמונה" class="tour-image">
             <div class="card-body text-center">
                 <h1 class="h4 text-primary mb-2">{{ tour.כותרת_ראשית }}</h1>
@@ -80,26 +91,34 @@
 
                 <ul class="list-group list-group-flush mb-4">
                     <li class="list-group-item">📅 <strong>תאריך:</strong> {{ tour.תאריך }}</li>
-
                     <li class="list-group-item">
                         📍 <strong>מיקום:</strong>
-                         <span>{{ tour.מיקום_ידני }}</span>
+                        <span>{{ tour.מיקום_ידני }}</span>
                         <a href="{{ tour.מיקום }}" class="btn btn-outline-primary btn-sm" target="_blank">הצג במפה</a>
-
                     </li>
-
                     <li class="list-group-item">🕒 <strong>שעת התחלה:</strong> {{ tour.שעת_התחלה }}</li>
                     <li class="list-group-item">👨‍🏫 <strong>מדריך:</strong> {{ tour.שם_מדריך }}</li>
+                    <li class="list-group-item" style="color: #0d6efd; cursor: pointer;" onclick="alert('התשלום יתבצע מול המדריך בעת ההגעה')">
+  💰 <strong>עלות:</strong> {{ tour.עלות }} ₪
+</li>
+
                 </ul>
 
-                <a href="{% url 'register' %}" class="btn btn-register w-75">🚀 להרשמה לסיור</a>
+               <a href="{% url 'register' tour.id %}" class="btn btn-register w-75">🚀 להרשמה לסיור</a>
+
             </div>
-        {% else %}
-            <div class="card-body text-center">
-                <h2 class="text-muted">אין סיור זמין כרגע 😕</h2>
-            </div>
-        {% endif %}
-    </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center mt-5">
+            <h2 class="text-muted">אין סיורים זמינים כרגע 😕</h2>
+        </div>
+    {% endif %}
 </div>
+<footer class="text-center mt-5 py-4" style="background-color: #f1f1f1; font-size: 0.9rem;">
+    <div class="container">
+        <span>Dr Yair Zadok | 📞 052-8876688</span>
+    </div>
+</footer>
 </body>
 </html>

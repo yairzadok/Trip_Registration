@@ -74,9 +74,11 @@
     <div class="star mb-3">🌟</div>
     <h1 class="text-success">נרשמת בהצלחה!</h1>
     <p class="lead">שלום <strong>{{ registration.שם_פרטי }} {{ registration.שם_משפחה }}</strong>,</p>
-    <p class="mb-4">שלחנו לך מייל אישור. נתראה בסיור ב־<strong>{{ registration.סיור.תאריך }}</strong>!</p>
+    <p class="mb-3">שלחנו לך מייל אישור.</p>
+    <p class="mb-1"><strong>📅 תאריך:</strong>{{ registration.סיור.תאריך|date:"d/m/Y" }}</p>
+    <p class="mb-1"><strong>🗺️ שם הטיול:</strong> {{ registration.סיור.כותרת_ראשית }}</p>
+    <p class="mb-4"><strong>👨‍🏫 מדריך:</strong> {{ registration.סיור.שם_מדריך }}</p>
     <a href="/" class="btn btn-home">חזרה לדף הבית 🏠</a>
 </div>
-
 </body>
 </html>

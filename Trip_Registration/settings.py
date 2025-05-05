@@ -71,7 +71,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'yair6655@gmail.com'        # כתובת המייל שלך כאן
-EMAIL_HOST_PASSWORD = 'gooq urlp lcxn hiqn'
+EMAIL_HOST_USER = 'easy2travel24@gmail.com'        # כתובת המייל שלך כאן
+EMAIL_HOST_PASSWORD = 'cpas gluw toyp myeh'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

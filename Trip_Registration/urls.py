@@ -20,6 +20,10 @@ urlpatterns = [
     path('send-attendance-report/', views.send_attendance_report, name='send_attendance_report'),
     path('register-guide/', views.register_tour_guide, name='register_guide'),
     path('thanks/', views.thank_you, name='guide_thank_you'),
+    path('create-tour/', views.create_tour, name='create_tour'),
+    path('dashboard/', views.tour_dashboard, name='tour_dashboard'),
+   path('edit-tour/<int:tour_id>/', views.edit_tour, name='edit_tour'),
+   path('delete-tour/<int:tour_id>/', views.delete_tour, name='delete_tour'),
     ]
 
 # טיפול בקבצי מדיה בזמן פיתוח

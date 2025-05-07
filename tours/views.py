@@ -15,6 +15,8 @@ from django.core.mail import send_mass_mail
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from email.utils import make_msgid
+from .forms import TourForm
+
 @csrf_exempt
 def update_presence(request):
     if request.method == "POST":
@@ -283,3 +285,34 @@ def register_tour_guide(request):
 
 def thank_you(request):
     return render(request, 'guides/thank_you.html')
+
+def create_tour(request):
+    if request.method == 'POST':
+        form = TourForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return render(request, 'guides/tour_created.html')
+    else:
+        form = TourForm()
+    return render(request, 'guides/create_tour.html', {'form': form})
+
+
+def tour_dashboard(request):
+    tours = Tour.objects.all().order_by('-תאריך', '-שעת_התחלה')
+    return render(request, 'guides/tour_dashboard.html', {'tours': tours})
+
+def edit_tour(request, tour_id):
+    tour = get_object_or_404(Tour, id=tour_id)
+    if request.method == 'POST':
+        form = TourForm(request.POST, request.FILES, instance=tour)
+        if form.is_valid():
+            form.save()
+            return redirect('tour_dashboard')
+    else:
+        form = TourForm(instance=tour)
+    return render(request, 'guides/edit_tour.html', {'form': form, 'tour': tour})
+
+def delete_tour(request, tour_id):
+    tour = get_object_or_404(Tour, id=tour_id)
+    tour.delete()
+    return redirect('tour_dashboard')

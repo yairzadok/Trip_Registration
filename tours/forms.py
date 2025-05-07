@@ -50,3 +50,27 @@ class TourGuideForm(forms.ModelForm):
             'experience': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'recommendations': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
+
+from django import forms
+from .models import Tour
+
+class TourForm(forms.ModelForm):
+    class Meta:
+        model = Tour
+        fields = '__all__'
+        widgets = {
+            'כותרת_ראשית': forms.TextInput(attrs={'class': 'form-control'}),
+            'כותרת_משנית': forms.TextInput(attrs={'class': 'form-control'}),
+            'תאריך': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'מיקום_ידני': forms.TextInput(attrs={'class': 'form-control'}),
+            'מיקום': forms.TextInput(attrs={'class': 'form-control'}),
+            'שעת_התחלה': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'שם_מדריך': forms.Select(attrs={'class': 'form-select'}),
+            'תמונה': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'טלפון_מדריך': forms.TextInput(attrs={'class': 'form-control'}),
+            'עלות': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['שם_מדריך'].queryset = TourGuide.objects.all()

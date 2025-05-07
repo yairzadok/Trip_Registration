@@ -50,3 +50,4 @@ class Registration(models.Model):
 
     def __str__(self):
         return f"{self.שם_פרטי} {self.שם_משפחה} ({self.סיור.כותרת_ראשית})"
+

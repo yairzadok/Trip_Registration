@@ -83,7 +83,7 @@
 <div class="container">
     {% if tours %}
         {% for tour in tours %}
-        <div class="card tour-card-bg-{{ forloop.counter0|add:0|divisibleby:5|yesno:'0,1,2,3,4'|cut:',' }}">
+        <div class="card tour-card tour-card-bg-{{ forloop.counter0|divisibleby:5|yesno:'0,1,2,3,4'|cut:',' }}">
             <img src="{{ tour.תמונה.url }}" alt="תמונה" class="tour-image">
             <div class="card-body text-center">
                 <h1 class="h4 text-primary mb-2">{{ tour.כותרת_ראשית }}</h1>
@@ -97,11 +97,13 @@
                         <a href="{{ tour.מיקום }}" class="btn btn-outline-primary btn-sm" target="_blank">הצג במפה</a>
                     </li>
                     <li class="list-group-item">🕒 <strong>שעת התחלה:</strong> {{ tour.שעת_התחלה }}</li>
-                    <li class="list-group-item">👨‍🏫 <strong>מדריך:</strong> {{ tour.שם_מדריך }}</li>
+                   <li class="list-group-item" style="color: #0d6efd; cursor: pointer;"
+                       onclick="if(confirm('התקשר למדריך?')) window.location.href='tel:{{ tour.טלפון_מדריך }}';">
+                       👨‍🏫 <strong>מדריך:</strong> {{ tour.שם_מדריך }}
+                   </li>
                     <li class="list-group-item" style="color: #0d6efd; cursor: pointer;" onclick="alert('התשלום יתבצע מול המדריך בעת ההגעה')">
-  💰 <strong>עלות:</strong> {{ tour.עלות }} ₪
-</li>
-
+                      💰 <strong>עלות:</strong> {{ tour.עלות }} ₪
+                    </li>
                 </ul>
 
                <a href="{% url 'register' tour.id %}" class="btn btn-register w-75">🚀 להרשמה לסיור</a>

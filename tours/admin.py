@@ -7,4 +7,4 @@ from .models import TourGuide
 
 @admin.register(TourGuide)
 class TourGuideAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'phone')
+    list_display = ('tour_guide_first_name', 'tour_guide_last_name', 'tour_guide_email', 'tour_guide_phone')

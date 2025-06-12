@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ tour.כותרת_ראשית }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+
+  <style>
+.info-box {
+  background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+  border-right: 5px solid #25D366;
+  border-radius: 15px;
+  padding: 20px;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+  color: #004d5d;
+}
+
+
+  </style>
+
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+  <div class="card shadow p-4">
+
+    <!-- כותרת + כותרת משנית -->
+    <h2 class="text-primary">{{ tour.כותרת_ראשית }}</h2>
+    <h5 class="text-muted mb-4">{{ tour.כותרת_משנית }}</h5>
+
+    <!-- תמונה -->
+    {% if tour.תמונה %}
+    <img src="{{ tour.תמונה.url }}" class="img-fluid rounded mb-4" style="max-height: 400px; object-fit: cover;" alt="תמונה מהסיור">
+    {% endif %}
+
+    <!-- רשימת פרטי הסיור -->
+    <ul class="list-group mb-4">
+
+      <li class="list-group-item">
+        📅 <strong>תאריך:</strong> {{ tour.תאריך }}
+      </li>
+
+      <li class="list-group-item">
+        🕒 <strong>שעת התחלה:</strong> {{ tour.שעת_התחלה }}
+        {% if tour.שעת_סיום %} | <strong>שעת סיום משוערת:</strong> {{ tour.שעת_סיום }} {% endif %}
+      </li>
+
+      <li class="list-group-item">
+        👤 <strong>מדריך:</strong> {{ tour.שם_מדריך }}
+        {% if tour.טלפון_מדריך %}
+       <li class="list-group-item">
+
+  {% if tour.טלפון_מדריך %}
+    📞 <strong>טלפון:</strong>
+    <a href="tel:{{ tour.טלפון_מדריך }}" style="text-decoration: none; color: #0d6efd;" title="לחץ להתקשרות מהמכשיר הנייד">
+      {{ tour.טלפון_מדריך }} 📲
+    </a>
+  {% endif %}
+</li>
+        {% endif %}
+      </li>
+
+      <li class="list-group-item" style="color: #0d6efd; cursor: pointer;" onclick="alert('התשלום יתבצע מול המדריך ')">
+                      💰 <strong>עלות:</strong> {{ tour.עלות }} ₪
+                    </li>
+
+      <li class="list-group-item">
+        📍 <strong>מקום מפגש:</strong> {{ tour.מקום_המפגש }}
+        {% if tour.קישור_למפות_גוגל %}
+        <a href="{{ tour.קישור_למפות_גוגל }}" class="btn btn-outline-primary btn-sm ms-2" target="_blank">הצג במפה</a>
+        {% endif %}
+      </li>
+
+      {% if tour.קהל_יעד %}
+      <li class="list-group-item">
+        🎯 <strong>קהל יעד:</strong> {{ tour.קהל_יעד }}
+      </li>
+      {% endif %}
+
+      {% if tour.רמת_קושי %}
+      <li class="list-group-item">
+        ⛰️ <strong>רמת קושי:</strong> {{ tour.רמת_קושי }}
+      </li>
+      {% endif %}
+
+      {% if tour.ציוד_נדרש %}
+      <li class="list-group-item">
+        🎒 <strong>ציוד נדרש:</strong> {{ tour.ציוד_נדרש }}
+      </li>
+      {% endif %}
+
+    </ul>
+
+    <!-- תיאור -->
+    {% if tour.תיאור %}
+    <div class="mb-4">
+      <h5>📝 תיאור הסיור:</h5>
+      <p>{{ tour.תיאור|linebreaks }}</p>
+    </div>
+    {% endif %}
+
+    <!-- כפתור הרשמה -->
+    <div class="text-center">
+      <a href="{% url 'register' tour.pk %}" class="btn btn-success btn-lg">להרשמה לסיור</a>
+    </div>
+<!-- תיבת הסבר מעוצבת -->
+<div class="info-box mt-4 text-center">
+  <div style="font-size: 2rem; margin-bottom: 10px;">🟢</div>
+  <p style="margin-bottom: 6px;"><strong>לאחר הרישום:</strong> תקבלו  אישור למייל עם פרטי הסיור, כולל איש קשר ונקודת מפגש.</p>
+  <p style="margin-bottom: 6px;">💬 לקראת כל סיור תיפתח קבוצת WhatsApp ייעודית.</p>
+  <p>📩 תישלח גם הודעת  תזכורת יום לפני הסיור.</p>
+</div>
+
+  </div>
+</div>
+
+</body>
+</html>

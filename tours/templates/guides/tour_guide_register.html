@@ -101,7 +101,7 @@
         <label for="id_first_name" class="form-label">שם פרטי</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-person"></i></span>
-          {{ form.first_name|add_class:"form-control" }}
+          {{ form.tour_guide_first_name|add_class:"form-control" }}
         </div>
       </div>
 
@@ -109,15 +109,15 @@
         <label for="id_last_name" class="form-label">שם משפחה</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-person-bounding-box"></i></span>
-          {{ form.last_name|add_class:"form-control" }}
+          {{ form.tour_guide_last_name|add_class:"form-control" }}
         </div>
       </div>
 
       <div class="mb-3">
         <label for="id_phone" class="form-label">טלפון נייד</label>
         <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-phone"></i></span>
-          {{ form.phone|add_class:"form-control" }}
+          <span class="input-group-text"><i class="bi bi-tour_guide_phone"></i></span>
+          {{ form.tour_guide_phone|add_class:"form-control" }}
         </div>
       </div>
 
@@ -125,12 +125,12 @@
         <label for="id_email" class="form-label">כתובת מייל</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-envelope-at"></i></span>
-          {{ form.email|add_class:"form-control" }}
+          {{ form.tour_guide_email|add_class:"form-control" }}
         </div>
       </div>
 
-      <!-- קו הפרדה -->
-      <div class="form-section-title">שדות רשות</div>
+      <!-- קו הפרדה --><div class="form-section-title" style="color: #004085;">שדות רשות</div>
+
 
       <div class="mb-3">
         <label for="id_address" class="form-label">כתובת מגורים</label>
@@ -140,11 +140,10 @@
         </div>
       </div>
 
-      <div class="mb-3">
-        <label for="id_license_file" class="form-label">קובץ רישיון הדרכה</label>
-        {{ form.license_file|add_class:"form-control" }}
-      </div>
-
+     <div class="mb-3">
+    <label for="id_tour_guide_profile_picture" class="form-label">תמונת פרופיל</label>
+    {{ form.tour_guide_profile_picture|add_class:"form-control" }}
+</div>
       <div class="mb-3">
         <label for="id_license_number" class="form-label">מספר רישיון</label>
         <div class="input-group">
@@ -178,6 +177,12 @@
 
       <button type="submit" class="btn btn-primary">שלח רישום</button>
     </form>
+ <footer class="text-center mt-5 py-4" style="background-color: #f1f1f1; font-size: 0.9rem;">
+    <div class="container">
+        <span>Dr Yair Zadok | 📞 <a href="tel:0528876688" style="text-decoration: none; color: inherit;">052-8876688</a></span>
+    </div>
+</footer>
+
   </div>
 
 </body>

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Tour, Registration
+from .models import Tour, Registration, TourGuide
 from .forms import RegistrationForm
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail.message import make_msgid, EmailMessage
@@ -16,6 +16,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from email.utils import make_msgid
 from .forms import TourForm
+import os
+from django.conf import settings
+
 
 @csrf_exempt
 def update_presence(request):
@@ -33,7 +36,7 @@ def update_presence(request):
 
 def home(request):
     tours = Tour.objects.all().order_by('-id')  # הצגת הסיורים החדשים תחילה
-    return render(request, 'tours/home.html', {'tours': tours})
+    return render(request, 'travelers/home.html', {'tours': tours})
 
 
 
@@ -48,14 +51,13 @@ def export_registrations_excel(request):
     sheet.title = "נרשמים"
 
     # הוספת כותרות
-    sheet.append(['שם פרטי', 'שם משפחה', 'תעודת זהות', 'טלפון', 'אימייל', 'נוכחות'])
+    sheet.append(['שם פרטי', 'שם משפחה', 'טלפון', 'אימייל', 'נוכחות'])
 
     # הוספת הנתונים
     for registration in Registration.objects.all():
         sheet.append([
             registration.שם_פרטי,
             registration.שם_משפחה,
-            registration.תעודת_זהות,
             registration.טלפון,
             registration.אימייל,
             'הגיע' if registration.נוכחות else 'לא הגיע',
@@ -65,92 +67,38 @@ def export_registrations_excel(request):
     return response
 def registration_list(request):
     tours = Tour.objects.prefetch_related('registrations').all()
-    return render(request, 'tours/registration_list.html', {'tours': tours})
+    return render(request, 'travelers/registration_list.html', {'tours': tours})
 
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import RegistrationForm
+from .models import Tour
 
 def register(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
             registration = form.save(commit=False)
             registration.סיור = tour
             registration.save()
+            # כאן ההפניה לדף הסליקה
+            return redirect('payment_redirect')  # השם מה-urls.py
 
-            # יצירת QR קוד
-            qr_io = generate_qr_with_text(registration.תעודת_זהות)
-            qr_cid = make_msgid(domain='example.com')  # אפשר לשים דומיין אמיתי שלך
-
-            # יצירת קישור לוויז
-            location_encoded = registration.סיור.מיקום.replace(' ', '+')
-            waze_link = f"https://waze.com/ul?q={location_encoded}&navigate=yes"
-
-            # בניית תוכן המייל
-            subject = 'אישור הרשמה לסיור'
-            from_email = 'your_email@gmail.com'  # עדכן לאימייל שלך
-            to_email = registration.אימייל
-
-            text_content = (
-                f"שלום {registration.שם_פרטי} {registration.שם_משפחה},\n"
-                f"תודה שנרשמת לסיור {registration.סיור.כותרת_ראשית}!\n"
-            )
-
-            html_content = f"""
-            <html lang="he" dir="rtl">
-            <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
-                <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <h2 style="color: #2E5C84;">שלום {registration.שם_פרטי} {registration.שם_משפחה},</h2>
-                    <p>תודה שנרשמת לסיור:</p>
-                    <h3 style="color: #4CAF50;">{registration.סיור.כותרת_ראשית}</h3>
-
-                    <p><b>📅 תאריך:</b> {registration.סיור.תאריך}</p>
-                    <p><b>🕘 שעה:</b> {registration.סיור.שעת_התחלה}</p>
-                    <p><b>📍 מיקום:</b> {registration.סיור.מיקום}</p>
-
-                    <div style="margin: 30px 0;">
-                        <p>לנוחיותך, קוד QR לסריקה מהירה בכניסה:</p>
-                        <img src="cid:{qr_cid[1:-1]}" alt="QR Code" style="max-width:200px;">
-                    </div>
-
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="{waze_link}" style="background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">📍 נווט עם וייז</a>
-                    </div>
-
-                    <hr style="margin: 30px 0;">
-
-                    <p><b>👨‍🏫 מדריך הסיור:</b> {registration.סיור.שם_מדריך}</p>
-                    <p><b>📞 טלפון מדריך:</b> <a href="tel:{registration.סיור.טלפון_מדריך}">{registration.סיור.טלפון_מדריך}</a></p>
-
-                    <p style="font-size: small; color: gray; margin-top: 30px;">מייל זה נשלח אוטומטית. אין להשיב אליו.</p>
-                </div>
-            </body>
-            </html>
-            """
-
-            # שליחת המייל
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-            msg.attach_alternative(html_content, "text/html")
-
-            # חיבור QR קוד לתוך המייל
-            qr_io.seek(0)
-            image = MIMEImage(qr_io.read(), _subtype="png")
-            image.add_header('Content-ID', qr_cid)
-            image.add_header('Content-Disposition', 'inline', filename="qr.png")
-            msg.attach(image)
-
-            msg.send()
-
-            return render(request, 'tours/success.html', {'registration': registration})
     else:
         form = RegistrationForm()
 
-    return render(request, 'tours/register.html', {'tour': tour, 'form': form})
+    return render(request, 'travelers/traveler_register.html', {'form': form, 'tour': tour})
 
+
+# בתוך הקובץ: tours/views.py
+
+def payment_redirect(request):
+    return render(request, 'travelers/payment_redirect.html')
 
 
 def success(request):
-    return render(request, 'tours/success.html')
-
+    return render(request, 'travelers/success.html')
 
 def generate_qr_with_text(data):
     qr = qrcode.QRCode(
@@ -225,23 +173,22 @@ def send_reminder_emails(request):
 
     return redirect('registration_list')
 
-
 def participants_list(request):
     tour_id = request.GET.get('tour_id')
     if tour_id:
         registrations = Registration.objects.filter(סיור_id=tour_id)
     else:
         registrations = Registration.objects.all()  # גיבוי למקרה שאין פילטר
-    return render(request, 'tours/participants_list.html', {'registrations': registrations})
+    return render(request, 'travelers/participants_list.html', {'registrations': registrations})
 
 
 @csrf_exempt
 def send_attendance_report(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        tour_guide_email = request.POST.get('tour_guide_email')
 
-        if not email:
-            return JsonResponse({'success': False, 'error': 'No email provided'})
+        if not tour_guide_email:
+            return JsonResponse({'success': False, 'error': 'No tour_guide_email provided'})
 
         # שליפת הנתונים
         registrations = Registration.objects.all()
@@ -261,7 +208,7 @@ def send_attendance_report(request):
             subject=subject,
             body=body,
             from_email=None,  # ישתמש ב-DEFAULT_FROM_EMAIL
-            to=[email],
+            to=[tour_guide_email],
         )
         email_message.send()
 
@@ -280,21 +227,28 @@ def register_tour_guide(request):
             return redirect('guide_thank_you')  # ודא שהנתיב הזה קיים
     else:
         form = TourGuideForm()
-    return render(request, 'guides/register.html', {'form': form})
+    return render(request, 'guides/tour_guide_register.html', {'form': form})
 
 
 def thank_you(request):
-    return render(request, 'guides/thank_you.html')
+    last_tour = Tour.objects.order_by('-id').first()
+    guide_first_name = ""
+
+    if last_tour and last_tour.שם_מדריך:
+        guide_first_name = last_tour.שם_מדריך.tour_guide_first_name
+
+    return render(request, 'guides/thank_you.html', {'tour_guide_first_name': guide_first_name})
 
 def create_tour(request):
     if request.method == 'POST':
-        form = TourForm(request.POST, request.FILES)
+        form = TourForm(request.POST, request.FILES)  # ← חשוב מאוד!
         if form.is_valid():
             form.save()
-            return render(request, 'guides/tour_created.html')
+            return redirect('thank_you')
     else:
         form = TourForm()
     return render(request, 'guides/create_tour.html', {'form': form})
+
 
 
 def tour_dashboard(request):
@@ -316,3 +270,72 @@ def delete_tour(request, tour_id):
     tour = get_object_or_404(Tour, id=tour_id)
     tour.delete()
     return redirect('tour_dashboard')
+from django.shortcuts import render
+
+
+def tour_created(request):
+    # קח את הסיור האחרון שנוצר
+    last_tour = Tour.objects.order_by('-id').first()
+
+    # אתחול שם המדריך
+    guide_name = ""
+    if last_tour and last_tour.שם_מדריך:
+        guide_name = last_tour.שם_מדריך.tour_guide_first_name
+
+    return render(request, 'guides/tour_created.html', {'tour_guide_first_name': guide_name})
+
+
+
+
+
+def send_reminder_per_tour(request, tour_id):
+    tour = get_object_or_404(Tour, id=tour_id)
+    emails = [reg.אימייל for reg in tour.registrations.all() if reg.אימייל]
+
+    messages = [
+        (
+            f'הזכרת השתתפות בטיול "{tour.כותרת_ראשית}"',
+            f'שלום,\n\nתזכורת להשתתפותך בטיול שיתקיים בתאריך {tour.תאריך}.\n\nבברכה,\nצוות ההדרכה',
+            'your@tour_guide_email.com',
+            [tour_guide_email]
+        )
+        for tour_guide_email in emails
+    ]
+    send_mass_mail(messages, fail_silently=False)
+    return redirect('participants_list')
+
+
+
+def tour_detail(request, pk):
+    tour = get_object_or_404(Tour, pk=pk)
+    return render(request, 'travelers/tour_detail.html', {'tour': tour})
+
+
+
+@csrf_exempt
+def mark_present_by_code(request):
+    if request.method == 'POST':
+        code = request.POST.get('registration_code')
+        if not code:
+            return JsonResponse({'success': False, 'error': 'Missing registration code'})
+
+        try:
+            registration = Registration.objects.get(registration_code=code)
+            registration.נוכחות = True
+            registration.save()
+            return JsonResponse({'success': True, 'id': registration.id})
+        except Registration.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Registration not found'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+def guide_detail(request, guide_id):
+    guide = get_object_or_404(TourGuide, id=guide_id)
+    return render(request, 'guides/guide_detail.html', {'guide': guide})
+
+
+# View to show all tour guides
+from .models import TourGuide
+def all_guides_view(request):
+    guides = TourGuide.objects.all()
+    return render(request, 'guides/all_guides.html', {'guides': guides})

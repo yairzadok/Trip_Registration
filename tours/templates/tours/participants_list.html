@@ -35,7 +35,7 @@
             border-color: #c3e6cb;
         }
 
-        .phone-icon {
+        .tour_guide_phone-icon {
             color: red;
             margin-right: 5px;
         }
@@ -81,10 +81,10 @@
                 width: 100%;
             }
         }
-        .phone-icon {
+        .tour_guide_phone-icon {
   color: red;
 }
-.phone-icon:hover {
+.tour_guide_phone-icon:hover {
   color: darkred;
 }
 
@@ -115,17 +115,17 @@
                         <strong class="fw-bold">{{ registration.שם_פרטי }} {{ registration.שם_משפחה }}</strong>
                         <small class="text-muted">
                               <a href="tel:{{ registration.טלפון }}" class="text-decoration-none text-muted">
-                                {{ registration.טלפון }} <i class="fa fa-phone phone-icon"></i>
+                                {{ registration.טלפון }} <i class="fa fa-tour_guide_phone tour_guide_phone-icon"></i>
                               </a>
                             </small>
                     </div>
-                    <div class="d-flex align-items-center mt-3 mt-sm-0">
-                        <label class="presence-label" for="presence_{{ registration.תעודת_זהות }}">נוכח</label>
-                        <input type="checkbox"
-                               id="presence_{{ registration.תעודת_זהות }}"
-                               {% if registration.נוכחות %}checked{% endif %}
-                               onchange="updateAttendance('{{ registration.id }}', this.checked)">
-                    </div>
+                       <div class="d-flex align-items-center mt-3 mt-sm-0">
+        <label class="presence-label" for="presence_{{ registration.registration_code }}">נוכח</label>
+        <input type="checkbox"
+               id="presence_{{ registration.registration_code }}"
+               {% if registration.נוכחות %}checked{% endif %}
+               onchange="updateAttendance('{{ registration.id }}', this.checked)">
+    </div>
                 </div>
             {% empty %}
                 <p class="text-center">אין משתתפים רשומים עדיין.</p>
@@ -257,11 +257,11 @@ function sendParticipantsByEmail() {
 
     rows.forEach(row => {
         const name = row.querySelector('strong')?.innerText || '';
-        const phone = row.querySelector('small')?.innerText || '';
+        const tour_guide_phone = row.querySelector('small')?.innerText || '';
         const checkbox = row.querySelector('input[type="checkbox"]');
         const status = checkbox.checked ? "✅ נוכח" : "❌ לא נוכח";
 
-        bodyText += `${name} | ${phone} | ${status}\n`;
+        bodyText += `${name} | ${tour_guide_phone} | ${status}\n`;
     });
 
     const subject = `דו״ח נוכחות - ${timestamp}`;
@@ -291,5 +291,48 @@ function updateAttendanceCounter() {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function handleQRCodeScanned(qrCodeMessage) {
+    const code = qrCodeMessage.trim();
+
+    fetch('/mark_present_by_code/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: new URLSearchParams({ 'registration_code': code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const checkbox = document.getElementById('presence_' + data.id);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+            showToast('✅ המשתתף סומן כנוכח', 'success');
+        } else {
+            showToast('⚠️ לא נמצא משתתף מתאים', 'warning');
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
 </body>
 </html>

@@ -1,28 +1,20 @@
 from django import forms
 from .models import Registration, TourGuide
+from .models import Tour
 
 class RegistrationForm(forms.ModelForm):
     class Meta:
         model = Registration
-        fields = ['שם_פרטי', 'שם_משפחה', 'תעודת_זהות', 'טלפון', 'אימייל']
+        fields = ['שם_פרטי', 'שם_משפחה', 'טלפון', 'אימייל']
         labels = {
             'שם_פרטי': 'שם פרטי',
             'שם_משפחה': 'שם משפחה',
-            'תעודת_זהות': 'תעודת זהות',
-            'טלפון': 'טלפון',
+             'טלפון': 'טלפון',
             'אימייל': 'אימייל',
         }
         widgets = {
             'שם_פרטי': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'הכנס שם פרטי'}),
             'שם_משפחה': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'הכנס שם משפחה'}),
-            'תעודת_זהות': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '9 ספרות',
-                'pattern': '\\d*',
-                'inputmode': 'numeric',
-                'maxlength': '9',
-                'title': 'יש להזין ספרות בלבד'
-            }),
             'טלפון': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '050-1234567'}),
             'אימייל': forms.EmailInput(attrs={
                 'class': 'form-control',
@@ -38,10 +30,10 @@ class TourGuideForm(forms.ModelForm):
         model = TourGuide
         fields = '__all__'
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'tour_guide_first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'tour_guide_last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'tour_guide_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'tour_guide_email': forms.EmailInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control'}),
             'license_file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'license_number': forms.TextInput(attrs={'class': 'form-control'}),
@@ -51,8 +43,6 @@ class TourGuideForm(forms.ModelForm):
             'recommendations': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
 
-from django import forms
-from .models import Tour
 
 class TourForm(forms.ModelForm):
     class Meta:
@@ -60,10 +50,13 @@ class TourForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'כותרת_ראשית': forms.TextInput(attrs={'class': 'form-control'}),
-            'כותרת_משנית': forms.TextInput(attrs={'class': 'form-control'}),
+            'כותרת_משנית': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'תאריך': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'מיקום_ידני': forms.TextInput(attrs={'class': 'form-control'}),
-            'מיקום': forms.TextInput(attrs={'class': 'form-control'}),
+            'מיקום': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'קישור למיקום במפה (למשל Google Maps)'
+            }),
             'שעת_התחלה': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'שם_מדריך': forms.Select(attrs={'class': 'form-select'}),
             'תמונה': forms.ClearableFileInput(attrs={'class': 'form-control'}),
